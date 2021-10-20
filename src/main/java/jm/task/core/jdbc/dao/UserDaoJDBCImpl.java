@@ -141,7 +141,7 @@ public class UserDaoJDBCImpl implements UserDao {
         } catch (SQLSyntaxErrorException ex) { // такой таблицы не существует
             System.out.println(ex.getMessage());
         } catch (SQLException exception) {
-            System.out.println("Some problems with connection occurred");
+            System.out.println("Some problems with connection occurred.");
             exception.printStackTrace();
         } catch (Exception throwable) { // прочие исключения
             throwable.printStackTrace();

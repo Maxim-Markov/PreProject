@@ -35,12 +35,8 @@ public class UserDaoJDBCImpl implements UserDao {
         try (Connection connection = Util.getMySQLConnection();
              Statement statement = connection.createStatement()) {
             statement.execute(SQL_CREATE_TABLE);
-            System.out.println("Table was created");
-        } catch (SQLSyntaxErrorException ex) { // такая таблица создана
-            System.out.println(ex.getMessage());
         } catch (SQLException exception) {
             System.out.println("Some problems with connection occurred");
-            exception.printStackTrace();
         } catch (Exception throwable) { // прочие исключения
             throwable.printStackTrace();
         }
@@ -50,12 +46,8 @@ public class UserDaoJDBCImpl implements UserDao {
         try (Connection connection = Util.getMySQLConnection();
              Statement statement = connection.createStatement()) {
             statement.execute(SQL_DROP_TABLE);
-            System.out.println("Table was dropped");
-        } catch (SQLSyntaxErrorException ex) { // такой таблицы не существует
-            System.out.println(ex.getMessage());
         } catch (SQLException exception) {
             System.out.println("Some problems with connection occurred");
-            exception.printStackTrace();
         } catch (Exception throwable) { // прочие исключения
             throwable.printStackTrace();
         }
@@ -69,11 +61,8 @@ public class UserDaoJDBCImpl implements UserDao {
             statement.setByte(3, age);
             statement.executeUpdate();
             System.out.println("User с именем – " + name + " добавлен в базу данных");
-        } catch (SQLSyntaxErrorException ex) { // такой таблицы не существует
-            System.out.println(ex.getMessage());
         } catch (SQLException exception) {
             System.out.println("Some problems with connection occurred");
-            exception.printStackTrace();
         } catch (Exception throwable) { // прочие исключения
             throwable.printStackTrace();
         }
@@ -83,13 +72,8 @@ public class UserDaoJDBCImpl implements UserDao {
         try (Connection connection = Util.getMySQLConnection();
              PreparedStatement statement = connection.prepareStatement(SQL_DELETE_BY_ID)) {
             statement.setLong(1, id);
-            int isDeleted = statement.executeUpdate();
-            System.out.println("User with id: " + id + (isDeleted == 0 ? " was not" : " was") + " removed");
-        } catch (SQLSyntaxErrorException ex) { // такой таблицы не существует
-            System.out.println(ex.getMessage());
         } catch (SQLException exception) {
             System.out.println("Some problems with connection occurred");
-            exception.printStackTrace();
         } catch (Exception throwable) { // прочие исключения
             throwable.printStackTrace();
         }
@@ -97,37 +81,18 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        Connection connection = null;
-        try {
-            connection = Util.getMySQLConnection();
-            Statement statement = connection.createStatement();
-            connection.setAutoCommit(false);// just try to execute transaction with rollback although it isn`t any sense here
+        try(Connection connection = Util.getMySQLConnection();
+            Statement statement = connection.createStatement()){
             ResultSet rs = statement.executeQuery(SQL_SELECT_ALL_USERS);
-            connection.commit();
             while (rs.next()) {
-                long id = rs.getLong(1);
-                String name = rs.getString(2);
-                String lastName = rs.getString(3);
-                Byte age = rs.getByte(4);
-                User user = new User(name, lastName, age);
-                user.setId(id);
+                User user = new User(rs.getString(2), rs.getString(3), rs.getByte(4));
+                user.setId(rs.getLong(1));
                 users.add(user);
             }
-        } catch (SQLSyntaxErrorException ex) { // такой таблицы не существует
-            System.out.println(ex.getMessage());
         } catch (SQLException exception) {
             System.out.println("Some problems with connection occurred");
-            exception.printStackTrace();
         } catch (Exception throwable) { // прочие исключения
             throwable.printStackTrace();
-        } finally {
-            try (Connection conn = connection) {
-                if (conn != null) {
-                    conn.rollback();
-                }
-            } catch (SQLException rollbackEx) {
-                System.out.println("The transaction can`t be rollback");
-            }
         }
         return users;
     }
@@ -136,12 +101,8 @@ public class UserDaoJDBCImpl implements UserDao {
         try (Connection connection = Util.getMySQLConnection();
              Statement statement = connection.createStatement()) {
             statement.executeUpdate(SQL_TRUNCATE);
-            System.out.println("Table was truncated");
-        } catch (SQLSyntaxErrorException ex) { // такой таблицы не существует
-            System.out.println(ex.getMessage());
         } catch (SQLException exception) {
             System.out.println("Some problems with connection occurred.");
-            exception.printStackTrace();
         } catch (Exception throwable) { // прочие исключения
             throwable.printStackTrace();
         }

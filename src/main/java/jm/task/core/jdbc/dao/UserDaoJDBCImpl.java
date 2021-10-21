@@ -10,7 +10,6 @@ import java.util.List;
 public class UserDaoJDBCImpl implements UserDao {
     private static final String tableName = "new_table";
 
-
     public static final String SQL_SELECT_ALL_USERS = "SELECT * FROM " + tableName;
 
     public static final String SQL_DROP_TABLE = "DROP TABLE `" + tableName + "`";
